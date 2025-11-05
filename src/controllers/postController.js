@@ -1,4 +1,5 @@
 import Post from "../models/Post.js";
+import mongoose from "mongoose";
 import { validationResult } from "express-validator";
 
 const createPost = async (req, res, next) => {
@@ -40,6 +41,21 @@ const getPosts = async (req, res, next) => {
   }
 };
 
+const getPostById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({ message: "No posts found of this id" });
+    }
+    const post = await Post.findById(id).populate("author", "name email");
+    if (!post) {
+      return res.status(404).json({ message: "No posts found of this id" });
+    }
+    return res.status(200).json({ post });
+  } catch (error) {
+    next(error);
+  }
+};
 const deletePost = async (req, res, next) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -81,4 +97,4 @@ const addComment = async (req, res, next) => {
   }
 };
 
-export default { createPost, getPosts, deletePost, addComment };
+export default { createPost, getPosts, getPostById, deletePost, addComment };

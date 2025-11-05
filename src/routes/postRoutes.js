@@ -26,6 +26,28 @@ router.get("/", postController.getPosts);
 
 /**
  * @openapi
+ * /api/posts/{id}:
+ *   get:
+ *     tags:
+ *       - Posts
+ *     summary: Retrieve a single post by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the post to retrieve
+ *     responses:
+ *       '200':
+ *         description: Post retrieved successfully
+ *       '404':
+ *         description: No posts found of this id
+ */
+router.get("/:id", postController.getPostById);
+
+/**
+ * @openapi
  * /api/posts:
  *   post:
  *     tags:
