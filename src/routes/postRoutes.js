@@ -11,6 +11,13 @@ import { protect } from "../middlewares/auth.js";
  *     tags:
  *       - Posts
  *     summary: Retrieve a list of posts
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Optional search term to filter posts by title, content, or category
  *     responses:
  *       '200':
  *         description: A JSON array of posts

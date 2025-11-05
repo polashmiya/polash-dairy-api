@@ -23,7 +23,14 @@ const createPost = async (req, res, next) => {
 
 const getPosts = async (req, res, next) => {
   try {
-    const posts = await Post.find()
+    const { search } = req.query;
+    const filter = {};
+    if (typeof search === "string" && search.trim() !== "") {
+      const regex = new RegExp(search.trim(), "i");
+      filter.$or = [{ title: regex }, { content: regex }, { category: regex }];
+    }
+
+    const posts = await Post.find(filter)
       .populate("author", "name email")
       .sort({ createdAt: -1 });
     res.status(200).json({ posts });
