@@ -12,6 +12,7 @@ const createPost = async (req, res, next) => {
       title,
       content,
       imageUrl: req.imageUrl ? req.imageUrl : null,
+      category: req.category,
     });
     post.author = req.user._id;
     await post.save();
