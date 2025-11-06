@@ -110,7 +110,7 @@ const addComment = async (req, res, next) => {
     const text = req.body?.comment ?? req.body?.text;
     const comment = {
       user: req.user._id,
-      comment: text,
+      text,
     };
     post.comments.push(comment);
     await post.save();
