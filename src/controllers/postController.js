@@ -120,4 +120,66 @@ const addComment = async (req, res, next) => {
   }
 };
 
-export default { createPost, getPosts, getPostById, deletePost, addComment };
+
+const updatePost = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  try {
+    const { id } = req.params;
+    const { title, content, category } = req.body;
+
+    const post = await Post.findById(id);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    // Check if the user is the author or an admin
+    if (String(post.author) !== String(req.user._id) && req.user.role !== "admin") {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    // Update post fields
+    post.title = title || post.title;
+    post.content = content || post.content;
+    post.category = category || post.category;
+    if (req.imageUrl) {
+      post.imageUrl = req.imageUrl;
+    }
+
+    await post.save();
+    res.status(200).json({ message: "Post updated successfully", post });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteComment = async (req, res, next) => {
+  try {
+    const { postId, commentId } = req.params;
+    
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+    
+    const comment = post.comments.id(commentId);
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found" });
+    }
+    
+    // Check if the user is the comment author or an admin
+    if (String(comment.user) !== String(req.user._id) && req.user.role !== "admin") {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+    
+    comment.remove();
+    await post.save();
+    
+    res.status(200).json({ message: "Comment deleted successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+export default { createPost, getPosts, getPostById, deletePost, addComment, updatePost, deleteComment };

@@ -88,6 +88,47 @@ router.post(
   postController.createPost,
 );
 
+
+/** * @openapi
+ * /api/posts/{id}:
+ *   put:
+ *     tags:
+ *       - Posts
+ *     summary: Update a post by ID
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the post to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               content:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *     responses:
+ *       '200':
+ *         description: Post updated successfully
+ *       '400':
+ *         description: Validation error
+ *       '401':
+ *         description: Unauthorized
+ *       '404':
+ *         description: Post not found
+ */
+router.put("/:id", protect, postController.updatePost);
+
 /**
  * @openapi
  * /api/posts/{id}:
@@ -163,5 +204,43 @@ router.post(
   ],
   postController.addComment,
 );
+
+
+
+/** * @openapi
+ * /api/posts/{postId}/comments/{commentId}:
+ *   delete:
+ *     tags:
+ *       - Posts
+ *     summary: Delete a comment from a post
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the post
+ *       - in: path
+ *         name: commentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the comment to delete
+ *     responses:
+ *       '200':
+ *         description: Comment deleted successfully
+ *       '401':
+ *         description: Unauthorized
+ *       '404':
+ *         description: Post or comment not found
+ */
+router.delete(
+  "/:postId/comments/:commentId",
+  protect,
+  postController.deleteComment,
+);
+
 
 export default router;
