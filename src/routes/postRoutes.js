@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import { body } from "express-validator";
+import { body, oneOf } from "express-validator";
 import postController from "../controllers/postController.js";
 import { protect } from "../middlewares/auth.js";
 
@@ -137,10 +137,11 @@ router.delete("/:id", protect, postController.deletePost);
  *           schema:
  *             type: object
  *             required:
- *               - text
+ *               - comment
  *             properties:
- *               text:
+ *               comment:
  *                 type: string
+ *                 description: Comment text (also accepts legacy 'text' field)
  *     responses:
  *       '201':
  *         description: Comment added successfully
@@ -154,7 +155,12 @@ router.delete("/:id", protect, postController.deletePost);
 router.post(
   "/:id/comments",
   protect,
-  [body("text").notEmpty().withMessage("Comment text is required")],
+  [
+    oneOf(
+      [body("comment").notEmpty(), body("text").notEmpty()],
+      "Comment text is required",
+    ),
+  ],
   postController.addComment,
 );
 

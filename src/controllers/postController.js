@@ -34,8 +34,20 @@ const getPosts = async (req, res, next) => {
 
     const posts = await Post.find(filter)
       .populate("author", "name email")
-      .sort({ createdAt: -1 });
-    res.status(200).json({ posts });
+      .populate({ path: "comments.user", select: "name" })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Add authorName inside each comment while keeping user reference
+    const postsWithAuthorName = posts.map((post) => ({
+      ...post,
+      comments: (post.comments || []).map((c) => ({
+        ...c,
+        authorName: c?.user && typeof c.user === "object" ? c.user.name : undefined,
+      })),
+    }));
+
+    res.status(200).json({ posts: postsWithAuthorName });
   } catch (error) {
     next(error);
   }
@@ -47,10 +59,20 @@ const getPostById = async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(404).json({ message: "No posts found of this id" });
     }
-    const post = await Post.findById(id).populate("author", "name email");
-    if (!post) {
+    const postDoc = await Post.findById(id)
+      .populate("author", "name email")
+      .populate({ path: "comments.user", select: "name" })
+      .lean();
+    if (!postDoc) {
       return res.status(404).json({ message: "No posts found of this id" });
     }
+    const post = {
+      ...postDoc,
+      comments: (postDoc.comments || []).map((c) => ({
+        ...c,
+        authorName: c?.user && typeof c.user === "object" ? c.user.name : undefined,
+      })),
+    };
     return res.status(200).json({ post });
   } catch (error) {
     next(error);
@@ -85,9 +107,10 @@ const addComment = async (req, res, next) => {
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
     }
+    const text = req.body?.comment ?? req.body?.text;
     const comment = {
       user: req.user._id,
-      text: req.body.text,
+      comment: text,
     };
     post.comments.push(comment);
     await post.save();
