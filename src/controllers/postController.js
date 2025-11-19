@@ -8,11 +8,12 @@ const createPost = async (req, res, next) => {
     return res.status(400).json({ errors: errors.array() });
   }
   try {
-    const { title, content,category } = req.body;
+    const { title, content,category,imageUrl } = req.body;
+    const finalImageUrl = imageUrl || req.imageUrl || null;
     const post = new Post({
       title,
       content,
-      imageUrl: req.imageUrl ? req.imageUrl : null,
+      imageUrl: finalImageUrl,
       category,
     });
     post.author = req.user._id;
