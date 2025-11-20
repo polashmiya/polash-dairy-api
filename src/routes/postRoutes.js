@@ -64,10 +64,17 @@ router.get("/:id", postController.getPostById);
  *             required:
  *               - title
  *               - content
+ *               - category
  *             properties:
  *               title:
  *                 type: string
  *               content:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               imageUrl:
  *                 type: string
  *     responses:
  *       '201':
@@ -85,9 +92,8 @@ router.post(
     body("content").notEmpty().withMessage("Content is required"),
     body("category").notEmpty().withMessage("Category is required"),
   ],
-  postController.createPost,
+  postController.createPost
 );
-
 
 /** * @openapi
  * /api/posts/{id}:
@@ -199,13 +205,11 @@ router.post(
   [
     oneOf(
       [body("comment").notEmpty(), body("text").notEmpty()],
-      "Comment text is required",
+      "Comment text is required"
     ),
   ],
-  postController.addComment,
+  postController.addComment
 );
-
-
 
 /** * @openapi
  * /api/posts/{postId}/comments/{commentId}:
@@ -239,8 +243,7 @@ router.post(
 router.delete(
   "/:postId/comments/:commentId",
   protect,
-  postController.deleteComment,
+  postController.deleteComment
 );
-
 
 export default router;
